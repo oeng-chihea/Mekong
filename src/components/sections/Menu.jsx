@@ -1,13 +1,17 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { initAnimations } from "../../utils/animations"
 
 const Menu = () => {
   const [activeCategory, setActiveCategory] = useState("starters")
+  const [isChangingCategory, setIsChangingCategory] = useState(false)
+  const [displayedCategory, setDisplayedCategory] = useState("starters")
   const [isMobile, setIsMobile] = useState(false)
   const videoRef = useRef(null)
+  const videoInitialized = useRef(false)
+  const menuItemsRef = useRef(null)
   const lastScrollY = useRef(0)
-  const lastReloadTime = useRef(0)
 
   // Check if device is mobile
   useEffect(() => {
@@ -25,20 +29,12 @@ const Menu = () => {
     return () => window.removeEventListener("resize", checkMobile)
   }, [])
 
-  // Enhanced video handling with frequent reloading
+  // Enhanced video handling - only initialize once
   useEffect(() => {
-    if (!videoRef.current) return
+    if (!videoRef.current || videoInitialized.current) return
 
     const video = videoRef.current
-
-    // Directly set styles to ensure visibility
-    video.style.display = "block"
-    video.style.opacity = "1"
-    video.style.visibility = "visible"
-    video.style.zIndex = "0"
-
-    // Force hardware acceleration
-    video.style.transform = "translateX(-50%) translateY(-50%) translateZ(0)"
+    videoInitialized.current = true
 
     // Ensure video plays
     const playVideo = () => {
@@ -56,55 +52,6 @@ const Menu = () => {
     // And when enough data is available
     video.addEventListener("canplay", playVideo)
 
-    // Frequent reload on scroll
-    const handleScroll = () => {
-      const now = Date.now()
-      const currentScrollY = window.scrollY
-
-      // Only reload if enough time has passed (1 second)
-      if (now - lastReloadTime.current > 1000 && isElementInViewport(video)) {
-        // Determine scroll direction
-        const scrollingDown = currentScrollY > lastScrollY.current
-
-        // Save current time
-        const currentTime = video.currentTime
-
-        // Determine new time based on scroll direction
-        let newTime
-        if (scrollingDown) {
-          // When scrolling down, jump forward slightly
-          newTime = (currentTime + 0.5) % video.duration
-        } else {
-          // When scrolling up, jump backward slightly
-          newTime = (currentTime - 0.5 + video.duration) % video.duration
-        }
-
-        // Apply the new time
-        video.currentTime = newTime
-
-        // Ensure it's playing
-        playVideo()
-
-        // Update last reload time
-        lastReloadTime.current = now
-      }
-
-      // Update last scroll position
-      lastScrollY.current = currentScrollY
-    }
-
-    // Add scroll event listener with throttling
-    let scrollTimer
-    const throttledScroll = () => {
-      if (scrollTimer) return
-      scrollTimer = setTimeout(() => {
-        handleScroll()
-        scrollTimer = null
-      }, 50) // Reduced throttle to 50ms for more responsiveness
-    }
-
-    window.addEventListener("scroll", throttledScroll)
-
     // Handle visibility changes
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible") {
@@ -115,9 +62,20 @@ const Menu = () => {
     return () => {
       video.removeEventListener("loadedmetadata", playVideo)
       video.removeEventListener("canplay", playVideo)
-      window.removeEventListener("scroll", throttledScroll)
+      document.removeEventListener("visibilitychange", playVideo)
     }
-  }, [])
+  }, []) // Empty dependency array ensures this only runs once
+
+  // Initialize animations and re-run when category changes
+  useEffect(() => {
+    // Short delay to ensure DOM is updated
+    const animationTimer = setTimeout(() => {
+      // Re-initialize animations to catch new menu items
+      initAnimations()
+    }, 350) // Slightly longer than the fade transition
+
+    return () => clearTimeout(animationTimer)
+  }, [displayedCategory])
 
   // Helper function to check if element is in viewport
   const isElementInViewport = (el) => {
@@ -126,90 +84,130 @@ const Menu = () => {
   }
 
   const menuCategories = [
-    { id: "starters", name: "Starters" },
-    { id: "mains", name: "Main Courses" },
+    { id: "starters", name: "Appetizers" },
+    { id: "mains", name: "Main Dishes" },
     { id: "desserts", name: "Desserts" },
-    { id: "drinks", name: "Drinks" },
+    { id: "drinks", name: "Beverages" },
   ]
 
   const menuItems = {
     starters: [
       {
-        name: "Truffle Arancini",
-        description: "Crispy risotto balls with wild mushrooms and truffle oil",
+        name: "Nem Nuong",
+        description: "Grilled pork skewers marinated in lemongrass and Khmer spices, served with pickled vegetables",
+        price: "$12",
+        image: "/images/nemnuong.jpg",
+      },
+      {
+        name: "Pleah Sach Ko",
+        description: "Traditional Khmer beef ceviche with lime juice, fish sauce, and fresh herbs",
         price: "$14",
+        image: "/images/pleahsachko.jpg",
       },
       {
-        name: "Seared Scallops",
-        description: "Pan-seared scallops with cauliflower purée and bacon crumble",
-        price: "$18",
-      },
-      {
-        name: "Burrata Salad",
-        description: "Creamy burrata with heirloom tomatoes, basil, and aged balsamic",
-        price: "$16",
+        name: "Num Krok",
+        description: "Crispy rice flour and coconut dumplings with green onions and a sweet-savory dipping sauce",
+        price: "$10",
+        image: "/images/numkrok.jpg",
       },
     ],
     mains: [
       {
-        name: "Filet Mignon",
-        description: "8oz grass-fed beef with garlic mashed potatoes and seasonal vegetables",
-        price: "$38",
+        name: "Amok Trey",
+        description:
+          "Cambodia's national dish - steamed fish curry with coconut milk and kroeung spice paste in banana leaf",
+        price: "$24",
+        image: "/images/amok.jpg",
       },
       {
-        name: "Pan-Seared Salmon",
-        description: "Wild-caught salmon with lemon beurre blanc, asparagus, and herb risotto",
-        price: "$32",
+        name: "Khor Sach Chrouk",
+        description: "Caramelized pork belly slow-cooked in palm sugar, fish sauce, and Kampot pepper",
+        price: "$22",
+        image: "/images/khor.jpg",
       },
       {
-        name: "Mushroom Risotto",
-        description: "Arborio rice with wild mushrooms, truffle oil, and parmesan",
-        price: "$26",
+        name: "Somlor Machu Kreung",
+        description: "Traditional sour soup with morning glory, pineapple, and your choice of fish or chicken",
+        price: "$18",
+        image: "/images/somlor.jpg",
       },
     ],
     desserts: [
       {
-        name: "Chocolate Soufflé",
-        description: "Warm chocolate soufflé with vanilla bean ice cream",
-        price: "$12",
+        name: "Num Ansom Chek",
+        description: "Sticky rice and banana wrapped in banana leaf, steamed and served with coconut cream",
+        price: "$8",
+        image: "/images/ansom.jpg",
       },
       {
-        name: "Crème Brûlée",
-        description: "Classic vanilla bean crème brûlée with caramelized sugar",
-        price: "$10",
+        name: "Sankya Lapov",
+        description: "Traditional pumpkin custard made with coconut milk and palm sugar",
+        price: "$9",
+        image: "/images/sankya.jpg",
       },
       {
-        name: "Berry Panna Cotta",
-        description: "Silky vanilla panna cotta with mixed berry compote",
-        price: "$11",
+        name: "Chek Ktih",
+        description: "Caramelized bananas in coconut milk with tapioca pearls and sesame seeds",
+        price: "$7",
+        image: "/images/chek.jpg",
       },
     ],
     drinks: [
       {
-        name: "Signature Martini",
-        description: "House-infused vodka with elderflower and citrus",
-        price: "$14",
+        name: "Teuk Ampou",
+        description: "Fresh sugar cane juice with lime and a hint of salt",
+        price: "$6",
+        image: "/images/terk.jpg",
       },
       {
-        name: "Barrel-Aged Manhattan",
-        description: "Bourbon, sweet vermouth, and bitters aged in oak barrels",
-        price: "$16",
+        name: "Teuk Krolok",
+        description: "Traditional Cambodian iced coffee with sweetened condensed milk",
+        price: "$5",
+        image: "/images/mixfruitsmoothie.jpg",
       },
       {
-        name: "Sommelier's Wine Selection",
-        description: "Ask your server about our rotating premium wine selection",
-        price: "Varies",
+        name: "Sra Sor",
+        description: "House-made rice wine infused with local herbs and spices",
+        price: "$8",
+        image: "/images/whitewhiskey.jpg",
       },
     ],
+  }
+
+  // Handle category change without affecting video
+  const handleCategoryChange = (categoryId) => {
+    if (activeCategory !== categoryId) {
+      setIsChangingCategory(true)
+      setActiveCategory(categoryId)
+
+      // Wait for fade-out animation to complete before changing displayed items
+      setTimeout(() => {
+        setDisplayedCategory(categoryId)
+        // Then start fade-in animation
+        setTimeout(() => {
+          setIsChangingCategory(false)
+
+          // Force animation on new items
+          if (menuItemsRef.current) {
+            const newItems = menuItemsRef.current.querySelectorAll(".menu-item")
+            newItems.forEach((item, index) => {
+              // Remove and re-add the class to force animation
+              item.classList.remove("animated")
+              // Staggered delay for smoother appearance
+              setTimeout(() => {
+                item.classList.add("animated")
+              }, 50 * index)
+            })
+          }
+        }, 50)
+      }, 300)
+    }
   }
 
   return (
     <section id="menu" className="menu-section">
       {/* Background Video */}
-      <div
-        className="menu-background-video"
-        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", overflow: "hidden", zIndex: 0 }}
-      >
+      <div className="menu-background-video">
         <video
           ref={videoRef}
           autoPlay
@@ -218,44 +216,19 @@ const Menu = () => {
           playsInline
           className="video-element"
           poster="/images/menu-poster.jpg"
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            minWidth: "100%",
-            minHeight: "100%",
-            width: "auto",
-            height: "auto",
-            transform: "translateX(-50%) translateY(-50%) translateZ(0)",
-            objectFit: "cover",
-            zIndex: 0,
-            opacity: 1,
-            visibility: "visible",
-          }}
         >
           <source src="/video/menu.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-        <div
-          className="video-overlay"
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            background: "rgba(0, 0, 0, 0.7)",
-            zIndex: 1,
-          }}
-        ></div>
+        <div className="video-overlay"></div>
       </div>
 
       <div className="menu-container">
         <div className="section-header text-center">
-          <span className="subtitle animate-on-scroll fade-up">Culinary Delights</span>
+          <span className="subtitle animate-on-scroll fade-up">Khmer Culinary Delights</span>
           <h2 className="animate-on-scroll fade-up delay-200">Our Menu</h2>
           <p className="animate-on-scroll fade-up delay-300">
-            Explore our seasonal offerings crafted with passion and the finest ingredients
+            Explore our authentic Cambodian dishes crafted with traditional techniques and the finest local ingredients
           </p>
         </div>
 
@@ -264,7 +237,7 @@ const Menu = () => {
             <button
               key={category.id}
               className={`menu-category-btn ${activeCategory === category.id ? "active" : ""}`}
-              onClick={() => setActiveCategory(category.id)}
+              onClick={() => handleCategoryChange(category.id)}
               aria-label={`View ${category.name}`}
             >
               {category.name}
@@ -272,20 +245,26 @@ const Menu = () => {
           ))}
         </div>
 
-        <div className="menu-items">
-          {menuItems[activeCategory].map((item, index) => (
-            <div
-              key={index}
-              className="menu-item animate-on-scroll fade-up"
-              style={{ animationDelay: `${500 + index * 100}ms` }}
-            >
-              <div className="menu-item-header">
-                <h3 className="menu-item-name">{item.name}</h3>
-                <span className="menu-item-price">{item.price}</span>
+        <div ref={menuItemsRef} className={`menu-items ${isChangingCategory ? "items-fading" : ""}`}>
+          {menuItems[displayedCategory] &&
+            menuItems[displayedCategory].map((item, index) => (
+              <div
+                key={`${displayedCategory}-${index}`}
+                className="menu-item animate-on-scroll fade-up"
+                style={{ animationDelay: `${50 * index}ms` }}
+              >
+                <div className="menu-item-img">
+                  <img src={item.image || "/placeholder.svg"} alt={item.name} loading="lazy" />
+                </div>
+                <div className="menu-item-content">
+                  <div className="menu-item-header">
+                    <h3 className="menu-item-name">{item.name}</h3>
+                    <span className="menu-item-price">{item.price}</span>
+                  </div>
+                  <p className="menu-item-description">{item.description}</p>
+                </div>
               </div>
-              <p className="menu-item-description">{item.description}</p>
-            </div>
-          ))}
+            ))}
         </div>
 
         <div className="menu-cta text-center animate-on-scroll fade-up delay-800">

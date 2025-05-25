@@ -185,12 +185,14 @@ const About = () => {
 
           <div className="about-text animate-on-scroll fade-up delay-400">
             <p>
-              Founded in 2010, Mekong has been serving exquisite cuisine in a warm and elegant atmosphere. Our passion
-              for culinary excellence drives us to create memorable dining experiences for our guests.
+              Founded in 2010, Mekong has been serving authentic Khmer cuisine in a warm and elegant atmosphere. Our
+              passion for preserving Cambodia's rich culinary heritage drives us to create memorable dining experiences
+              for our guests.
             </p>
             <p>
-              Led by award-winning Chef Michael Laurent, our kitchen team crafts each dish with precision and
-              creativity, using only the freshest seasonal ingredients sourced from local farmers and suppliers.
+              Led by Chef Sokha Prum, our kitchen team crafts each dish with traditional Khmer techniques and recipes
+              passed down through generations, using only the freshest seasonal ingredients sourced from local Cambodian
+              farmers and suppliers.
             </p>
           </div>
 
@@ -199,32 +201,32 @@ const About = () => {
               <div className="feature-icon">
                 <Utensils size={24} strokeWidth={2} />
               </div>
-              <h3>Gourmet Cuisine</h3>
-              <p>Expertly crafted dishes that blend traditional techniques with modern innovation</p>
+              <h3>Authentic Khmer Cuisine</h3>
+              <p>Traditional recipes that preserve the rich flavors and techniques of Cambodia</p>
             </div>
 
             <div className="feature animate-on-scroll fade-up delay-600">
               <div className="feature-icon">
                 <Wine size={24} strokeWidth={2} />
               </div>
-              <h3>Fine Wines</h3>
-              <p>Curated selection of wines from around the world to complement your meal</p>
+              <h3>Rice Wine & Palm Juice</h3>
+              <p>Traditional Cambodian beverages that perfectly complement our dishes</p>
             </div>
 
             <div className="feature animate-on-scroll fade-up delay-700">
               <div className="feature-icon">
                 <Bell size={24} strokeWidth={2} />
               </div>
-              <h3>Impeccable Service</h3>
-              <p>Attentive and personalized service to enhance your dining experience</p>
+              <h3>Cambodian Hospitality</h3>
+              <p>Experience the warmth and attentiveness of traditional Khmer service</p>
             </div>
 
             <div className="feature animate-on-scroll fade-up delay-800">
               <div className="feature-icon">
                 <Leaf size={24} strokeWidth={2} />
               </div>
-              <h3>Authentic Ingredients</h3>
-              <p>Fresh, locally-sourced ingredients that capture the essence of Southeast Asian cuisine</p>
+              <h3>Aromatic Herbs & Spices</h3>
+              <p>Fresh, locally-sourced ingredients that capture the essence of Cambodian cuisine</p>
             </div>
           </div>
 

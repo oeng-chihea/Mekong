@@ -1,9 +1,9 @@
-// Modify the animation function to be more defensive
+// Enhanced animation function with better handling of dynamic content
 export const initAnimations = () => {
   // Check if we're in a browser environment
   if (typeof window === "undefined") return
 
-  const animatedElements = document.querySelectorAll(".animate-on-scroll")
+  const animatedElements = document.querySelectorAll(".animate-on-scroll:not(.animated)")
 
   if (animatedElements.length === 0) return
 
