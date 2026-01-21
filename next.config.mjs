@@ -7,9 +7,6 @@ const nextConfig = {
     // You can add other experimental features here if needed
   },
   // Environment variables are loaded from .env.local
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
